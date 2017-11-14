@@ -43,11 +43,11 @@ public class SummaryChart {
 		chart = new ChartJs(config);
 		chart.setJsLoggingEnabled(true);
 		//chart.addClickListener((a, b) -> DemoUtils.notification(a, b, config.data().getDatasets().get(a)));
-		refreshChartData(chart);
+		//setChartDummyData(chart);
 		chart.setHeight("50%");
 		chart.setWidth("50%");
 
-		Button refreshButton = new Button("Rerun algorithms", VaadinIcons.REFRESH);
+		Button refreshButton = new Button("Run algorithms", VaadinIcons.REFRESH);
 		refreshButton.addClickListener(
 				(Button.ClickListener) event -> {
 					refreshChartData(chart);
@@ -64,13 +64,40 @@ public class SummaryChart {
 		return layout;
 	}
 
-	protected void refreshChartData(ChartJs chart) {
-		MyVaadinUI.runAllAlgorithm();
-		generateRandomData(chart.getConfig());
+	private void setChartDummyData(ChartJs chart) {
+		PieChartConfig config = (PieChartConfig) chart.getConfig();
+		List<String> labels = config.data().getLabels();
+		for (Dataset<?, ?> ds : config.data().getDatasets()) {
+			PieDataset lds = (PieDataset) ds;
+			List<Double> data = new ArrayList<>();
+			List<String> colors = new ArrayList<>();
+			for (int i = 0; i < labels.size(); i++) {
+				data.add((double) (Math.round(Math.random() * 100)));
+				colors.add(ColorUtils.randomColor(0.7));
+			}
+			lds.backgroundColor(colors.toArray(new String[colors.size()]));
+			lds.dataAsList(data);
+		}
 		chart.refreshData();
 	}
 
-	private void generateRandomData(ChartConfig chartConfig) {
+	private void refreshChartData(ChartJs chart) {
+		AlgorithmOutput.resetPageFaultMap();
+		for (int i = 0; i < 1000; ++i) {
+			//new Thread(() -> {
+			MyVaadinUI.runAllAlgorithm();
+			//if(i % 100 == 0){
+			//			Notification.show("This is the caption",
+			//					"This is the description",Notification.Type.HUMANIZED_MESSAGE);
+			generateData(chart.getConfig());
+			chart.refreshData();
+			//}).start();
+
+		}
+		//}
+	}
+
+	private synchronized void generateData(ChartConfig chartConfig) {
 		PieChartConfig config = (PieChartConfig) chartConfig;
 		List<String> labels = config.data().getLabels();
 		for (Dataset<?, ?> ds : config.data().getDatasets()) {
@@ -82,28 +109,27 @@ public class SummaryChart {
 				colors.add(ColorUtils.randomColor(0.7));
 			}*/
 
-			double sum = (double)AlgorithmOutput.pageFaultMap.get("FIFO") + (double)AlgorithmOutput.pageFaultMap.get("LRU") + (double)AlgorithmOutput.pageFaultMap.get("LFD");
-			DecimalFormat df = new DecimalFormat("##.###%");
-			for(String s : labels){
-				if( s.contains("FIFO")){
-					labels.set(labels.indexOf(s),  "FIFO " + (df.format(AlgorithmOutput.pageFaultMap.get("FIFO") / sum)));
-				}
-				else if( s.contains("LRU")){
-					labels.set(labels.indexOf(s),  "LRU " + (df.format(AlgorithmOutput.pageFaultMap.get("LRU") / sum)));
-				}
-				else if( s.contains("LFD")){
-					labels.set(labels.indexOf(s),   "LFD " + (df.format(AlgorithmOutput.pageFaultMap.get("LFD") / sum)));
+			double sum = (double) AlgorithmOutput.pageFaultMap.get("FIFO") + (double) AlgorithmOutput.pageFaultMap.get("LRU") + (double) AlgorithmOutput.pageFaultMap.get("LFD");
+			DecimalFormat df = new DecimalFormat("##.####%");
+			for (String s : labels) {
+				if (s.contains("FIFO")) {
+					MyVaadinUI.fifo.getOutput().setValue(String.valueOf(AlgorithmOutput.pageFaultMap.get("FIFO")));
+					labels.set(labels.indexOf(s), "FIFO " + (df.format(AlgorithmOutput.pageFaultMap.get("FIFO") / sum)));
+				} else if (s.contains("LRU")) {
+					MyVaadinUI.lru.getOutput().setValue(String.valueOf(AlgorithmOutput.pageFaultMap.get("LRU")));
+					labels.set(labels.indexOf(s), "LRU " + (df.format(AlgorithmOutput.pageFaultMap.get("LRU") / sum)));
+				} else if (s.contains("LFD")) {
+					MyVaadinUI.lfd.getOutput().setValue(String.valueOf(AlgorithmOutput.pageFaultMap.get("LFD")));
+					labels.set(labels.indexOf(s), "LFD " + (df.format(AlgorithmOutput.pageFaultMap.get("LFD") / sum)));
 				}
 
 			}
-			data.add((double)AlgorithmOutput.pageFaultMap.get("FIFO"));
+			data.add((double) AlgorithmOutput.pageFaultMap.get("FIFO"));
 			colors.add(ColorUtils.randomColor(0.7));
-			data.add((double)AlgorithmOutput.pageFaultMap.get("LRU"));
+			data.add((double) AlgorithmOutput.pageFaultMap.get("LRU"));
 			colors.add(ColorUtils.randomColor(0.7));
-			data.add((double)AlgorithmOutput.pageFaultMap.get("LFD"));
+			data.add((double) AlgorithmOutput.pageFaultMap.get("LFD"));
 			colors.add(ColorUtils.randomColor(0.7));
-
-
 
 			lds.backgroundColor(colors.toArray(new String[colors.size()]));
 			lds.dataAsList(data);

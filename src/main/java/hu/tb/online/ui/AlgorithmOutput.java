@@ -6,6 +6,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import hu.tb.online.algorithms.AbstractPagingAlgorithm;
 import hu.tb.online.algorithms.FIFO;
+import hu.tb.online.algorithms.LFD;
 import hu.tb.online.algorithms.LRU;
 
 import java.util.ArrayList;
@@ -13,7 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class AlgorithmOutput extends VerticalLayout {
+public class
+AlgorithmOutput extends VerticalLayout {
+
+	public enum OUTPUT_RESET {YES, NO}
 
 	private Button button;
 	public static List<Integer> list;
@@ -36,29 +40,33 @@ public class AlgorithmOutput extends VerticalLayout {
 
 	private void init(AbstractPagingAlgorithm.ALGORITHM alg) {
 		output = new Label();
-		pageFaultMap = new HashMap<>();
-		initInput();
+		if (pageFaultMap == null) {
+			pageFaultMap = new HashMap<>();
+		}
 		switch (alg) {
 		case LFD:
 			button = new Button("LFD");
 			button.addClickListener((Button.ClickListener) event -> {
-				//TODO implement
-				LRU<Integer> lru2 = new LRU<>();
-				lru2.setCacheSize(3);
-				lru2.solve(list);
-				lru2.printCacheContent();
-				pageFaultMap.put("LFD", lru2.getPageFault());
-				output.setValue(lru2.getFormattedCache());
+				LFD<Integer> lfd = new LFD<>();
+				lfd.solve(list);
+				if (pageFaultMap.get("LFD") == null) {
+					pageFaultMap.put("LFD", lfd.getPageFault());
+				} else {
+					pageFaultMap.put("LFD", pageFaultMap.get("LFD") + lfd.getPageFault());
+				}
+				output.setValue(lfd.getFormattedCache());
 			});
 			break;
 		case LRU:
 			button = new Button("LRU");
 			button.addClickListener((Button.ClickListener) event -> {
 				LRU<Integer> lru = new LRU<>();
-				lru.setCacheSize(3);
 				lru.solve(list);
-				lru.printCacheContent();
-				pageFaultMap.put("LRU",lru.getPageFault());
+				if (pageFaultMap.get("LRU") == null) {
+					pageFaultMap.put("LRU", lru.getPageFault());
+				} else {
+					pageFaultMap.put("LRU", pageFaultMap.get("LRU") + lru.getPageFault());
+				}
 				output.setValue(lru.getFormattedCache());
 			});
 			break;
@@ -66,10 +74,13 @@ public class AlgorithmOutput extends VerticalLayout {
 			button = new Button("FIFO");
 			button.addClickListener((Button.ClickListener) event -> {
 				FIFO<Integer> fifo = new FIFO<>();
-				fifo.setCacheSize(3);
 				fifo.solve(list);
-				fifo.printCacheContent();
-				pageFaultMap.put("FIFO", fifo.getPageFault());
+				if (pageFaultMap.get("FIFO") == null) {
+					pageFaultMap.put("FIFO", fifo.getPageFault());
+				} else {
+					pageFaultMap.put("FIFO", pageFaultMap.get("FIFO") + fifo.getPageFault());
+				}
+
 				output.setValue(fifo.getFormattedCache());
 			});
 			break;
@@ -90,8 +101,8 @@ public class AlgorithmOutput extends VerticalLayout {
 		list.add(4);
 		list.add(2);
 		list.add(5);*/
-
-		/*list.add(1);
+/*
+		list.add(1);
 		list.add(2);
 		list.add(3);
 		list.add(4);
@@ -103,6 +114,14 @@ public class AlgorithmOutput extends VerticalLayout {
 
 	public Button getButton() {
 		return button;
+	}
+
+	public Label getOutput() {
+		return output;
+	}
+
+	public static void resetPageFaultMap() {
+		pageFaultMap = new HashMap<>();
 	}
 }
 

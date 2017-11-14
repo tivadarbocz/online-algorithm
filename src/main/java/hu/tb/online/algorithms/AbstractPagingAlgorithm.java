@@ -8,7 +8,7 @@ public abstract class AbstractPagingAlgorithm<T> {
 
 	private int pageFault = 0;
 	protected ArrayList<T> cache = new ArrayList<>();
-	protected int cacheSize;
+	protected int cacheSize = 3;
 
 	public void setCacheSize(int cacheSize) {
 		this.cacheSize = cacheSize;

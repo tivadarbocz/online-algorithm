@@ -54,7 +54,7 @@ public class MyVaadinUI extends UI {
 		fifo = new AlgorithmOutput(AbstractPagingAlgorithm.ALGORITHM.FIFO);
 		lru = new AlgorithmOutput(AbstractPagingAlgorithm.ALGORITHM.LRU);
 		lfd = new AlgorithmOutput(AbstractPagingAlgorithm.ALGORITHM.LFD);
-		Label lblInput = new Label("Input: 50000 element, 1000 test case");
+		Label lblInput = new Label("Input: 50000 element, 1000 test case, k = 3");
 		grid.addComponent(lblInput, 0,0, 2, 0);
 		grid.setComponentAlignment(lblInput, Alignment.TOP_CENTER);
 		grid.addComponent(fifo, 0,1);
@@ -76,7 +76,7 @@ public class MyVaadinUI extends UI {
 		}*/
 	}
 
-	public static void runAllAlgorithm(){
+	public static synchronized void runAllAlgorithm() {
 		AlgorithmOutput.initInput();
 		fifo.getButton().click();
 		lru.getButton().click();
