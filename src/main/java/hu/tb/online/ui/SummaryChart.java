@@ -32,7 +32,7 @@ public class SummaryChart {
 				.responsive(true)
 				.title()
 				.display(true)
-				.text("Chart.js Pie Chart (Data Refresh)")
+				.text("Number of page fault")
 				.and()
 				.animation()
 				//.animateScale(true)
