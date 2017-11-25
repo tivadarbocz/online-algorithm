@@ -9,7 +9,10 @@ import com.byteowls.vaadin.chartjs.utils.ColorUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.VerticalLayout;
+import hu.tb.online.algorithms.random.BinomialRandom;
+import hu.tb.online.algorithms.random.PoissonRandom;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -48,19 +51,23 @@ public class SummaryChart {
 		chart.setWidth("50%");
 
 		Button refreshButton = new Button("Run algorithms", VaadinIcons.REFRESH);
+		ComboBox<Distribution> comboBoxDistribution = new ComboBox<>("Choose distribution");
+		initDistibutionComboBox(comboBoxDistribution);
 		refreshButton.addClickListener(
 				(Button.ClickListener) event -> {
-					refreshChartData(chart);
+					refreshChartData(chart, comboBoxDistribution.getSelectedItem().get());
 
 				});
 
 		VerticalLayout layout = new VerticalLayout();
 		layout.setSizeFull();
-		layout.addComponent(refreshButton);
+		layout.addComponents(refreshButton, comboBoxDistribution);
 		layout.addComponent(chart);
 		layout.setComponentAlignment(refreshButton, Alignment.TOP_CENTER);
+		layout.setComponentAlignment(comboBoxDistribution, Alignment.TOP_CENTER);
 		layout.setComponentAlignment(chart, Alignment.MIDDLE_CENTER);
 		layout.setExpandRatio(chart, 1);
+
 		return layout;
 	}
 
@@ -81,11 +88,11 @@ public class SummaryChart {
 		chart.refreshData();
 	}
 
-	private void refreshChartData(ChartJs chart) {
+	private void refreshChartData(ChartJs chart, Distribution distribution) {
 		AlgorithmOutput.resetPageFaultMap();
-		for (int i = 0; i < 1000; ++i) {
+		for (int i = 0; i < 1; ++i) {
 			//new Thread(() -> {
-			MyVaadinUI.runAllAlgorithm();
+			MyVaadinUI.runAllAlgorithm(distribution);
 			//if(i % 100 == 0){
 			//			Notification.show("This is the caption",
 			//					"This is the description",Notification.Type.HUMANIZED_MESSAGE);
@@ -96,6 +103,14 @@ public class SummaryChart {
 		}
 		//}
 	}
+
+	private void initDistibutionComboBox(ComboBox<Distribution> comboBoxDistribution) {
+		Distribution dBinomial = new Distribution(1, BinomialRandom.class.getSimpleName(), new BinomialRandom());
+		Distribution dPoisson = new Distribution(1, PoissonRandom.class.getSimpleName(), new PoissonRandom());
+		comboBoxDistribution.setItems(dBinomial, dPoisson);
+		comboBoxDistribution.setItemCaptionGenerator(Distribution::getName);
+	}
+
 
 	private synchronized void generateData(ChartConfig chartConfig) {
 		PieChartConfig config = (PieChartConfig) chartConfig;

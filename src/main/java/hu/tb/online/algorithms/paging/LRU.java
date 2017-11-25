@@ -1,4 +1,4 @@
-package hu.tb.online.algorithms;
+package hu.tb.online.algorithms.paging;
 
 import java.util.List;
 

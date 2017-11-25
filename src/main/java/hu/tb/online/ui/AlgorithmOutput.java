@@ -1,98 +1,64 @@
 package hu.tb.online.ui;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import hu.tb.online.algorithms.AbstractPagingAlgorithm;
-import hu.tb.online.algorithms.FIFO;
-import hu.tb.online.algorithms.LFD;
-import hu.tb.online.algorithms.LRU;
+import hu.tb.online.algorithms.paging.AbstractPagingAlgorithm;
+import hu.tb.online.algorithms.paging.PagingAlgorithmFactory;
+import hu.tb.online.algorithms.random.AbstractRandom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class
 AlgorithmOutput extends VerticalLayout {
 
-	public enum OUTPUT_RESET {YES, NO}
-
-	private Button button;
+	private Label title;
 	public static List<Integer> list;
 	private Label output;
 	public static HashMap<String, Integer> pageFaultMap;
-
+	private AbstractPagingAlgorithm<Integer> algorithm;
+	private AbstractPagingAlgorithm.ALGORITHM alg;
 
 	public AlgorithmOutput(AbstractPagingAlgorithm.ALGORITHM alg) {
-
-		init(alg);
+		this.alg = alg;
+		init();
 		setSizeFull();
-		addComponent(button);
-		if(output != null){
+		addComponent(title);
+		if (output != null) {
 			addComponent(output);
 			setComponentAlignment(output, Alignment.TOP_CENTER);
 		}
-		setComponentAlignment(button, Alignment.TOP_CENTER);
+		setComponentAlignment(title, Alignment.TOP_CENTER);
 
 	}
 
-	private void init(AbstractPagingAlgorithm.ALGORITHM alg) {
+	private void init() {
 		output = new Label();
 		if (pageFaultMap == null) {
 			pageFaultMap = new HashMap<>();
 		}
 		switch (alg) {
 		case LFD:
-			button = new Button("LFD");
-			button.addClickListener((Button.ClickListener) event -> {
-				LFD<Integer> lfd = new LFD<>();
-				lfd.solve(list);
-				if (pageFaultMap.get("LFD") == null) {
-					pageFaultMap.put("LFD", lfd.getPageFault());
-				} else {
-					pageFaultMap.put("LFD", pageFaultMap.get("LFD") + lfd.getPageFault());
-				}
-				output.setValue(lfd.getFormattedCache());
-			});
+			title = new Label("LFD");
 			break;
 		case LRU:
-			button = new Button("LRU");
-			button.addClickListener((Button.ClickListener) event -> {
-				LRU<Integer> lru = new LRU<>();
-				lru.solve(list);
-				if (pageFaultMap.get("LRU") == null) {
-					pageFaultMap.put("LRU", lru.getPageFault());
-				} else {
-					pageFaultMap.put("LRU", pageFaultMap.get("LRU") + lru.getPageFault());
-				}
-				output.setValue(lru.getFormattedCache());
-			});
+			title = new Label("LRU");
 			break;
 		case FIFO:
-			button = new Button("FIFO");
-			button.addClickListener((Button.ClickListener) event -> {
-				FIFO<Integer> fifo = new FIFO<>();
-				fifo.solve(list);
-				if (pageFaultMap.get("FIFO") == null) {
-					pageFaultMap.put("FIFO", fifo.getPageFault());
-				} else {
-					pageFaultMap.put("FIFO", pageFaultMap.get("FIFO") + fifo.getPageFault());
-				}
-
-				output.setValue(fifo.getFormattedCache());
-			});
+			title = new Label("FIFO");
 			break;
 		}
 
 	}
 
-	public static void initInput() {
+	public static void initInput(Distribution distribution) {
 		list = new ArrayList<>();
-		Random random = new Random();
-		for(int i = 1; i < 50000; ++i){
-			list.add(random.nextInt(5 - 0 + 1) + 0);
+		AbstractRandom random = distribution.getRandom();
+		for (int i = 1; i < 50000; ++i) {
+			//list.add(random.nextInt(5 - 0 + 1) + 0);
+			list.add(random.nextRandom());
 		}
 		/*list.add(1);
 		list.add(2);
@@ -112,8 +78,8 @@ AlgorithmOutput extends VerticalLayout {
 		list.add(2);*/
 	}
 
-	public Button getButton() {
-		return button;
+	public Label getTitle() {
+		return title;
 	}
 
 	public Label getOutput() {
@@ -122,6 +88,19 @@ AlgorithmOutput extends VerticalLayout {
 
 	public static void resetPageFaultMap() {
 		pageFaultMap = new HashMap<>();
+	}
+
+	public void run() {
+
+		PagingAlgorithmFactory pagingAlgorithmFactory = new PagingAlgorithmFactory();
+		algorithm = pagingAlgorithmFactory.create(alg);
+		algorithm.solve(list);
+		if (pageFaultMap.get(alg.name()) == null) {
+			pageFaultMap.put(alg.name(), algorithm.getPageFault());
+		} else {
+			pageFaultMap.put(alg.name(), pageFaultMap.get(alg.name()) + algorithm.getPageFault());
+		}
+		output.setValue(algorithm.getFormattedCache());
 	}
 }
 
