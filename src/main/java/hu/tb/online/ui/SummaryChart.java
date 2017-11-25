@@ -52,6 +52,7 @@ public class SummaryChart {
 
 		Button refreshButton = new Button("Run algorithms", VaadinIcons.REFRESH);
 		ComboBox<Distribution> comboBoxDistribution = new ComboBox<>("Choose distribution");
+		comboBoxDistribution.setEmptySelectionAllowed(false);
 		initDistibutionComboBox(comboBoxDistribution);
 		refreshButton.addClickListener(
 				(Button.ClickListener) event -> {
@@ -105,8 +106,8 @@ public class SummaryChart {
 	}
 
 	private void initDistibutionComboBox(ComboBox<Distribution> comboBoxDistribution) {
-		Distribution dBinomial = new Distribution(1, BinomialRandom.class.getSimpleName(), new BinomialRandom());
-		Distribution dPoisson = new Distribution(1, PoissonRandom.class.getSimpleName(), new PoissonRandom());
+		Distribution dBinomial = new Distribution(1, "Binomial distribution", new BinomialRandom());
+		Distribution dPoisson = new Distribution(1, "Poisson distribution", new PoissonRandom());
 		comboBoxDistribution.setItems(dBinomial, dPoisson);
 		comboBoxDistribution.setItemCaptionGenerator(Distribution::getName);
 	}
