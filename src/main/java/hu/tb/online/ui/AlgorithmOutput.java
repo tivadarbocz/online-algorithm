@@ -57,25 +57,8 @@ AlgorithmOutput extends VerticalLayout {
 		list = new ArrayList<>();
 		AbstractRandom random = distribution.getRandom();
 		for (int i = 1; i < 50000; ++i) {
-			//list.add(random.nextInt(5 - 0 + 1) + 0);
 			list.add(random.nextRandom());
 		}
-		/*list.add(1);
-		list.add(2);
-		list.add(4);
-		list.add(3);
-		list.add(4);
-		list.add(2);
-		list.add(5);*/
-/*
-		list.add(1);
-		list.add(2);
-		list.add(3);
-		list.add(4);
-		list.add(2);
-		list.add(5);
-		list.add(1);
-		list.add(2);*/
 	}
 
 	public Label getTitle() {

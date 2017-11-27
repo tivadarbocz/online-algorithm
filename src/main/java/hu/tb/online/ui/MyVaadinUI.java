@@ -67,18 +67,6 @@ public class MyVaadinUI extends UI {
 		SummaryChart chart = new SummaryChart();
 
 		grid.addComponent(chart.getSummaryChart(), 0, 2, 2, 2);
-
-		// Align and size the labels.
-		/*for (int col=0; col<grid.getColumns(); col++) {
-			for (int row = 0; row < grid.getRows(); row++) {
-				Component c = grid.getComponent(col, row);
-				grid.setComponentAlignment(c, Alignment.TOP_CENTER);
-				// Make the labels high to illustrate the empty
-				// horizontal space.
-				if (col != 0 || row != 0)
-					c.setHeight("100%");
-			}
-		}*/
 	}
 
 	public static synchronized void runAllAlgorithm(Distribution distribution) {

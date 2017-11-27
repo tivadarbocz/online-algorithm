@@ -90,18 +90,11 @@ public class SummaryChart {
 
 	private void refreshChartData(ChartJs chart, Distribution distribution) {
 		AlgorithmOutput.resetPageFaultMap();
-		for (int i = 0; i < 1; ++i) {
-			//new Thread(() -> {
+		for (int i = 0; i < 1000; ++i) {
 			MyVaadinUI.runAllAlgorithm(distribution);
-			//if(i % 100 == 0){
-			//			Notification.show("This is the caption",
-			//					"This is the description",Notification.Type.HUMANIZED_MESSAGE);
 			generateData(chart.getConfig());
 			chart.refreshData();
-			//}).start();
-
 		}
-		//}
 	}
 
 	private void initDistibutionComboBox(ComboBox<Distribution> comboBoxDistribution) {
